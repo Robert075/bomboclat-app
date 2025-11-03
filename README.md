@@ -1,4 +1,4 @@
-# Reipe Search APP
+# Recipe Search APP
 
 Created by:
 - Roberto Gimenez Fuentes
