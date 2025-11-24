@@ -1,0 +1,32 @@
+h1 {
+    color: blue;
+    font-size: 20px;
+}
+
+.search-recipes {
+    background-color: red;
+}
+
+.search-recipes-header {
+    color: aquamarine;
+    font-size: 20px;
+}
+
+body {
+    font-family: 'Momo Signature', sans-serif;
+}
+
+button {
+    border: 3px solid gray;
+    border-radius: 8px;
+    background: none;
+    color: gray;
+    font-size: 100px;
+    cursor: pointer;
+}
+
+button:hover {
+    border: 3px solid black;
+    color: black;
+    transition: border 0.3s, color .4s;
+}
