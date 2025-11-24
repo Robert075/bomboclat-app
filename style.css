@@ -1,32 +1,64 @@
-h1 {
-    color: blue;
-    font-size: 20px;
+header {
+ background-color: #14453D;
+ color: #ffffff;
 }
-
-.search-recipes {
-    background-color: red;
+section h2 {
+ color: #880044;
 }
-
-.search-recipes-header {
-    color: aquamarine;
-    font-size: 20px;
-}
-
-body {
-    font-family: 'Momo Signature', sans-serif;
-}
-
 button {
-    border: 3px solid gray;
-    border-radius: 8px;
-    background: none;
-    color: gray;
-    font-size: 100px;
-    cursor: pointer;
+ background-color: #92B6B1;
+}
+button:hover {
+ background-color: #FF9800;
+}
+.recipe-card {
+ border-left-color: #B2C9AB;
 }
 
+h1, h2, h3 {
+ font-family: 'Limeligth', sans-serif;;
+}
+body, p {
+ font-family: 'Montserrat', sans-serif;;
+}
+
+/* Smooth transitions */
+* {
+ transition: all 0.3ss ease;
+}
+/* Recipe card hover */
+.recipe-card {
+ transition: transform 0.3ss ease, box-shadow 0.3ss ease;
+}
+.recipe-card:hover {
+ transform: translateY(-8px);;
+ box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+ cursor: pointer;
+}
+/* Button effects */
+button {
+ transition: all 0.3ss ease;
+ 
+}
 button:hover {
-    border: 3px solid black;
-    color: black;
-    transition: border 0.3s, color .4s;
+ transform: scale(1.05);;
+ box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+button:active {
+ transform: scale(0.98);;
+}
+/* Input focus */
+input:focus {
+ outline: none;;
+ border-color: #880044;
+ box-shadow: 0 0 0 3px rgba(200, 100, 150, 0.1);
+}
+/* Link hover (if you have links) */
+aa {
+ color: #FF9800;
+ text-decoration: none;
+}
+aa:hover {
+ color: #14453D;
+ text-decoration: underline;
 }
