@@ -129,7 +129,7 @@ select:focus {
 }
 
 /* =========================================
-   5. RECIPE CARDS (Preserving Original Style)
+   5. RECIPE CARDS
    ========================================= */
 .recipe-card {
   background-color: var(--bg-card);
@@ -266,8 +266,8 @@ footer {
   color: #666;
 }
 
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   h1 { font-size: 2rem; }
   form#search-form { flex-direction: column; }
   input[type="text"], select, button[type="submit"] { width: 100%; max-width: none; }
-}
+} */
