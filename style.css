@@ -2,17 +2,20 @@
    1. VARIABLES & RESET
    ========================================= */
 :root {
-  /* Paleta de colores "Cocina Fresca" */
-  --primary-color: #344E41;   /* Verde Bosque Oscuro */
-  --secondary-color: #588157; /* Verde Salvia */
-  --accent-color: #D97706;    /* Naranja Especiado (Botones) */
-  --danger-color: #B91C1C;    /* Rojo (Eliminar) */
-  --bg-color: #F3F4F6;        /* Gris muy claro / Blanco roto */
-  --card-bg: #FFFFFF;         /* Blanco puro */
-  --text-main: #1F2937;       /* Gris carbón (mejor que negro puro) */
-  --text-muted: #6B7280;      /* Gris medio */
+  /* --- Color Palette --- */
+  /* Primary: Deep Forest Green (Header, borders) */
+  --primary-color: #14453D; 
+  /* Secondary: Sage Green (Accents, hovers) */
+  --secondary-color: #4A7c59; 
+  /* Accent: Warm Orange (Buttons, links) */
+  --accent-color: #D97706;    
+  /* Danger: Red (Remove button) */
+  --danger-color: #B91C1C;    
+  /* Backgrounds */
+  --bg-body: #F3F4F6;         /* Light Grey/Cream */
+  --bg-card: #FFFFFF;         /* Pure White */
   
-  /* Fuentes */
+  /* --- Fonts --- */
   --font-display: 'Limelight', cursive;
   --font-body: 'Montserrat', sans-serif;
 }
@@ -21,12 +24,14 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* Global smooth transition for all interactions */
+  transition: all 0.3s ease;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-color);
-  color: var(--text-main);
+  background-color: var(--bg-body);
+  color: #333;
   line-height: 1.6;
   padding-bottom: 40px;
 }
@@ -36,9 +41,9 @@ body {
    ========================================= */
 header.header {
   background-color: var(--primary-color);
-  color: white;
-  padding: 40px 20px;
+  color: #ffffff;
   text-align: center;
+  padding: 40px 20px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   margin-bottom: 30px;
 }
@@ -54,10 +59,10 @@ h2 {
   color: var(--primary-color);
   font-size: 2rem;
   margin-bottom: 20px;
-  text-align: center;
-  border-bottom: 2px solid var(--secondary-color);
-  display: inline-block;
-  padding-bottom: 5px;
+}
+
+h3 {
+  font-family: var(--font-display);
 }
 
 section {
@@ -66,27 +71,21 @@ section {
   padding: 0 20px;
 }
 
-section h2 {
-  display: block; /* Reset del inline-block global para secciones */
-  border-bottom: none;
-  margin-bottom: 25px;
-}
-
 /* =========================================
-   3. FORMS & INPUTS
+   3. SEARCH FORM & INPUTS
    ========================================= */
 .search-recipes {
-  background-color: white;
+  background-color: var(--bg-card);
   padding: 30px;
-  border-radius: 15px;
+  border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   text-align: center;
 }
 
 form#search-form {
   display: flex;
-  gap: 10px;
   justify-content: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -97,77 +96,88 @@ select {
   border-radius: 8px;
   font-family: var(--font-body);
   font-size: 1rem;
-  transition: border-color 0.3s ease;
   flex: 1;
   max-width: 400px;
 }
 
-input[type="text"]:focus, 
+input:focus, 
 select:focus {
   outline: none;
-  border-color: var(--secondary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(20, 69, 61, 0.1);
 }
 
 /* =========================================
-   4. GRID LAYOUT (RESULTADOS)
+   4. LAYOUT (GRID SYSTEM)
    ========================================= */
+/* Using Grid instead of Flexbox for better alignment of cards */
 #results-container,
 #favorites-container {
   display: grid;
-  /* Grid mágico: crea columnas automáticamente según el espacio */
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
-/* Mensajes vacíos */
+/* Styling for empty state messages */
 #results-container p,
 #favorites-container p {
   grid-column: 1 / -1;
   text-align: center;
-  font-size: 1.2rem;
-  color: var(--text-muted);
+  color: #666;
   font-style: italic;
 }
 
 /* =========================================
-   5. RECIPE CARDS
+   5. RECIPE CARDS (Preserving Original Style)
    ========================================= */
 .recipe-card {
-  background-color: var(--card-bg);
+  background-color: var(--bg-card);
   border-radius: 12px;
-  overflow: hidden; /* Para que la imagen no se salga de las esquinas */
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 20px;
+  
+  /* The distinctive left border from your original design */
+  border-left: 5px solid var(--primary-color);
+  
+  /* Shadow and Layout */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  border: 1px solid #eee; /* Borde sutil */
+  overflow: hidden;
+  
+  /* Animation properties */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .recipe-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  cursor: pointer;
 }
 
 .recipe-card img {
   width: 100%;
-  height: 200px;
+  height: 180px;
   object-fit: cover;
-  border-bottom: 4px solid var(--secondary-color);
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 
 .card-info {
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Empuja el contenido para llenar la tarjeta */
+  flex-grow: 1;
 }
 
 .recipe-card h3 {
-  font-family: var(--font-body); /* Montserrat es más legible para títulos largos */
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--primary-color);
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.recipe-card p {
+  color: #666;
+  line-height: 1.6;
   margin-bottom: 10px;
 }
 
@@ -181,40 +191,42 @@ button {
   border-radius: 8px;
   font-weight: 600;
   font-family: var(--font-body);
-  transition: all 0.2s ease;
   font-size: 1rem;
 }
 
-/* Botón de búsqueda por defecto */
+/* Default button (Search) */
 button[type="submit"] {
   background-color: var(--primary-color);
   color: white;
 }
 
+/* Hover effects for all buttons */
 button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   filter: brightness(1.1);
-  transform: scale(1.02);
 }
 
 button:active {
   transform: scale(0.98);
 }
 
-/* Botón "Añadir a favoritos" (Generado por JS) */
+/* Add to Favorites Button (Green/Teal from original palette) */
 .add-btn {
-  background-color: var(--secondary-color);
-  color: white;
+  background-color: #92B6B1; 
+  color: #14453D;
   width: 100%;
-  margin-top: auto; /* Empuja el botón al fondo de la tarjeta */
+  margin-top: auto; 
 }
 
 .add-btn:hover {
-  background-color: var(--primary-color);
+  background-color: var(--accent-color); /* Orange on hover */
+  color: white;
 }
 
-/* Botón "Eliminar" (Generado por JS) */
+/* Remove Button (Distinctive Red) */
 .remove-btn {
-  background-color: white;
+  background-color: transparent;
   color: var(--danger-color);
   border: 2px solid var(--danger-color);
   width: 100%;
@@ -226,7 +238,7 @@ button:active {
   color: white;
 }
 
-/* Botón "Cargar más" */
+/* Pagination / Load More Button */
 .pagination-container {
   text-align: center;
   margin-top: 40px;
@@ -236,7 +248,6 @@ button:active {
   background-color: transparent;
   color: var(--primary-color);
   border: 2px solid var(--primary-color);
-  padding: 10px 40px;
 }
 
 #load-more-btn:hover {
@@ -245,20 +256,16 @@ button:active {
 }
 
 /* =========================================
-   7. FOOTER
+   7. FOOTER & MEDIA QUERIES
    ========================================= */
 footer {
   text-align: center;
   margin-top: 60px;
   padding: 20px;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid #ddd;
+  color: #666;
 }
 
-/* =========================================
-   8. RESPONSIVE
-   ========================================= */
 @media (max-width: 600px) {
   h1 { font-size: 2rem; }
   form#search-form { flex-direction: column; }
