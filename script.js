@@ -61,12 +61,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	});
 
+	// Recipe fetch logic
+
 	const searchForm = document.getElementById('search-form');
 	const searchInput = document.getElementById('search-input');
+	const loadMoreBtn = document.getElementById('load-more-btn');
+
+	// In order to "paginate" results, we need the following variables
+	let storedMeals = []; 
+	let shownCount = 0;
+	const ITEMS_PER_LOAD = 6;
+
 	
 	searchForm.addEventListener('submit', (event) => {
 		event.preventDefault();
-
 		const ingredient = searchInput.value.trim();
 		if (ingredient) {
 			getRecipes(ingredient);
@@ -75,15 +83,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
+	loadMoreBtn.addEventListener('click', () => {
+		showNextBatch();
+	});
+
 	async function getRecipes(ingredient) {
 		resultsContainer.innerHTML = '<p>Searching...</p>';
+		loadMoreBtn.style.display = 'none'; // Hide the 'show more' button
+		storedMeals = [];
+		shownCount = 0;
 
 		try {
 			const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`)
 			const data = await response.json();
 
 			if (data.meals) {
-				displayRecipes(data.meals);
+				storedMeals = data.meals;
+				resultsContainer.innerHTML = '';
+				showNextBatch();
 			} else {
 				resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"`;
 			}
@@ -91,26 +108,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		} catch (error) {
 			console.log('Error: ', error);
 			resultsContainer.innerHTML = '<p>There was an error while trying to connect to the API</p>'
-
-		}
-
-		function displayRecipes(meals) {
-			resultsContainer.innerHTML = '';
-			meals.slice(0, 6).forEach(meal => {
-				const card = document.createElement('div');
-				card.classList.add('recipe-card');
-
-				card.innerHTML = `
-					<img src="${meal.strMealThumb}" alt="${meal.strMeal}">
-					<div class="card-info">
-						<h3>${meal.strMeal}</h3>
-						<button>Add to favourites</button>
-					</div>
-				`;
-				resultsContainer.appendChild(card);
-			});
 		}
 	}
+
+
+	function showNextBatch() {
+		const nextBatch = storedMeals.slice(shownCount, shownCount + ITEMS_PER_LOAD);
+		nextBatch.forEach(meal => {
+			const card = document.createElement('div');
+			card.classList.add('recipe-card');
+			card.innerHTML = `
+				<img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+				<div class="card-info">
+					<h3>${meal.strMeal}</h3>
+					<button>Add to favourites</button>
+				</div>
+			`;
+			resultsContainer.appendChild(card);
+		});
+		shownCount += nextBatch.length;
+		if (shownCount < storedMeals.length) {
+			loadMoreBtn.style.display = 'inline-block';
+		} else {
+			loadMoreBtn.style.display = 'none';
+		}
+	}
+	
 });
 
 // Search bar functionality
