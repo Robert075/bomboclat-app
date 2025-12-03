@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
   <body>
     <header class="header">
@@ -61,6 +62,40 @@
       <p>Created by <strong>Bomboclat</strong> - 2025</p>
       <p>Problem Solving Project</p>
     </footer>
+
+    <div id="recipe-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="" alt="Recipe Image" class="modal-img" id="modal-img">
+                <button class="close-btn" id="close-modal-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-title-row">
+                    <h2 id="modal-title">Recipe Title</h2>
+                    <button class="fav-btn-modal" id="modal-fav-btn" title="Add to Favorites">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-grid">
+                    <div class="ingredients-section">
+                        <h3 class="section-title">Ingredients</h3>
+                        <div class="ingredients-list" id="modal-ingredients">
+                
+                        </div>
+                    </div>
+                    <div class="instructions-section">
+                        <h3 class="section-title">Instructions</h3>
+                        <p class="instructions-text" id="modal-instructions">
+                            
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
   </body>
   <script src="script.js"></script>
 </html>
