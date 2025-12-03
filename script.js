@@ -1,142 +1,172 @@
 document.addEventListener('DOMContentLoaded', () => {
-	const resultsContainer = document.getElementById('results-container');
-	const favoritesContainer = document.getElementById('favorites-container');
+    // --- REFERENCIAS DOM ---
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const resultsContainer = document.getElementById('results-container');
+    const favoritesContainer = document.getElementById('favorites-container');
+    const loadMoreBtn = document.getElementById('load-more-btn');
 
-	if (!resultsContainer || !favoritesContainer) return;
+    // --- ESTADO DE LA APLICACIÓN ---
+    const STATE = {
+        searchResults: [], // Recetas actuales de la búsqueda
+        favorites: [],     // Recetas guardadas en favoritos
+        shownCount: 0,
+        itemsPerLoad: 6
+    };
 
-	function hasNoFavoritesPlaceholder() {
-		const p = favoritesContainer.querySelector('p');
-		return p && /no favourites yet/i.test(p.textContent);
-	}
+    const STORAGE_KEY = 'bomboclat_favorites_v1';
 
-	function removeNoFavoritesPlaceholder() {
-		if (hasNoFavoritesPlaceholder()) favoritesContainer.innerHTML = '';
-	}
+    // ==========================================
+    // 1. GESTIÓN DE LOCALSTORAGE Y DATOS
+    // ==========================================
 
-	function isAlreadyFavorited(title) {
-		return Array.from(favoritesContainer.querySelectorAll('.recipe-card h3'))
-			.some(h => h.textContent.trim() === title.trim());
-	}
+    function loadFavorites() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        STATE.favorites = stored ? JSON.parse(stored) : [];
+        renderFavorites(); // Pintar al cargar la página
+    }
 
-	function createFavoriteCard(card) {
-		const title = card.querySelector('h3')?.textContent || '';
-		if (!title) return;
-		if (isAlreadyFavorited(title)) return;
+    function saveFavorite(recipe) {
+        // Evitar duplicados
+        if (STATE.favorites.some(fav => fav.idMeal === recipe.idMeal)) {
+            alert('Recipe already in favorites!');
+            return;
+        }
+        STATE.favorites.push(recipe);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.favorites));
+        renderFavorites();
+        // alert('Added to favorites!');
+    }
 
-		removeNoFavoritesPlaceholder();
+    function removeFavorite(idMeal) {
+        STATE.favorites = STATE.favorites.filter(recipe => recipe.idMeal !== idMeal);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.favorites));
+        renderFavorites();
+    }
 
-		const fav = document.createElement('div');
-		fav.className = 'recipe-card';
+    // ==========================================
+    // 2. LÓGICA DE RENDERIZADO (PINTAR EN PANTALLA)
+    // ==========================================
 
-		const titleEl = document.createElement('h3');
-		titleEl.textContent = title;
-		fav.appendChild(titleEl);
+    // Genera el HTML de una tarjeta
+    function createCardHTML(meal, type) {
+        // 'type' puede ser 'result' (con botón Add) o 'favorite' (con botón Remove)
+        const btnText = type === 'result' ? 'Add to favourites' : 'Remove';
+        const btnClass = type === 'result' ? 'add-btn' : 'remove-btn';
+        
+        return `
+            <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+            <div class="card-info">
+                <h3>${meal.strMeal}</h3>
+                <button class="${btnClass}" data-id="${meal.idMeal}">${btnText}</button>
+            </div>
+        `;
+    }
 
-		// copy relevant paragraphs (ingredients, category, time)
-		card.querySelectorAll('p').forEach(p => {
-			const clone = p.cloneNode(true);
-			fav.appendChild(clone);
-		});
+    // Pinta los resultados de búsqueda
+    function renderNextBatch() {
+        const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + STATE.itemsPerLoad);
+        
+        batch.forEach(meal => {
+            const card = document.createElement('div');
+            card.classList.add('recipe-card');
+            card.innerHTML = createCardHTML(meal, 'result');
+            resultsContainer.appendChild(card);
+        });
 
-		const removeBtn = document.createElement('button');
-		removeBtn.type = 'button';
-		removeBtn.textContent = 'Remove';
-		removeBtn.addEventListener('click', () => {
-			fav.remove();
-			if (!favoritesContainer.querySelector('.favorite-item')) {
-				favoritesContainer.innerHTML = '<p>No favourites yet... Add some recipes!</p>';
-			}
-		});
+        STATE.shownCount += batch.length;
 
-		fav.appendChild(removeBtn);
-		favoritesContainer.appendChild(fav);
-	}
+        // Manejo del botón "Ver más"
+        loadMoreBtn.style.display = (STATE.shownCount < STATE.searchResults.length) ? 'inline-block' : 'none';
+    }
 
-	// wire up existing recipe cards' buttons
-	resultsContainer.querySelectorAll('.recipe-card button').forEach(btn => {
-		btn.addEventListener('click', (e) => {
-			e.preventDefault();
-			const card = btn.closest('.recipe-card');
-			if (card) createFavoriteCard(card);
-		});
-	});
+    // Pinta la lista de favoritos
+    function renderFavorites() {
+        favoritesContainer.innerHTML = ''; // Limpiar contenedor
 
-	// Recipe fetch logic
+        if (STATE.favorites.length === 0) {
+            favoritesContainer.innerHTML = '<p>No favourites yet... Add some recipes!</p>';
+            return;
+        }
 
-	const searchForm = document.getElementById('search-form');
-	const searchInput = document.getElementById('search-input');
-	const loadMoreBtn = document.getElementById('load-more-btn');
+        STATE.favorites.forEach(meal => {
+            const card = document.createElement('div');
+            card.classList.add('recipe-card');
+            card.innerHTML = createCardHTML(meal, 'favorite');
+            favoritesContainer.appendChild(card);
+        });
+    }
 
-	// In order to "paginate" results, we need the following variables
-	let storedMeals = []; 
-	let shownCount = 0;
-	const ITEMS_PER_LOAD = 6;
+    // ==========================================
+    // 3. API Y BÚSQUEDA
+    // ==========================================
 
-	
-	searchForm.addEventListener('submit', (event) => {
-		event.preventDefault();
-		const ingredient = searchInput.value.trim();
-		if (ingredient) {
-			getRecipes(ingredient);
-		} else {
-			alert('Please, type an ingredient...');
-		}
-	});
+    async function fetchRecipes(ingredient) {
+        resultsContainer.innerHTML = '<p>Searching...</p>';
+        loadMoreBtn.style.display = 'none';
+        
+        try {
+            const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`);
+            const data = await response.json();
 
-	loadMoreBtn.addEventListener('click', () => {
-		showNextBatch();
-	});
+            resultsContainer.innerHTML = ''; // Limpiar mensaje de carga
 
-	async function getRecipes(ingredient) {
-		resultsContainer.innerHTML = '<p>Searching...</p>';
-		loadMoreBtn.style.display = 'none'; // Hide the 'show more' button
-		storedMeals = [];
-		shownCount = 0;
+            if (data.meals) {
+                STATE.searchResults = data.meals;
+                STATE.shownCount = 0;
+                renderNextBatch();
+            } else {
+                resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"</p>`;
+            }
 
-		try {
-			const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`)
-			const data = await response.json();
+        } catch (error) {
+            console.error(error);
+            resultsContainer.innerHTML = '<p>Error connecting to the API.</p>';
+        }
+    }
 
-			if (data.meals) {
-				storedMeals = data.meals;
-				resultsContainer.innerHTML = '';
-				showNextBatch();
-			} else {
-				resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"`;
-			}
+    // ==========================================
+    // 4. EVENT LISTENER (INTERACCIÓN)
+    // ==========================================
 
-		} catch (error) {
-			console.log('Error: ', error);
-			resultsContainer.innerHTML = '<p>There was an error while trying to connect to the API</p>'
-		}
-	}
+    // Formulario de Búsqueda
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const ingredient = searchInput.value.trim();
+        if (ingredient) {
+            fetchRecipes(ingredient);
+        } else {
+            alert('Please enter an ingredient');
+        }
+    });
 
+    // Botón "Cargar más"
+    loadMoreBtn.addEventListener('click', renderNextBatch);
 
-	function showNextBatch() {
-		const nextBatch = storedMeals.slice(shownCount, shownCount + ITEMS_PER_LOAD);
-		nextBatch.forEach(meal => {
-			const card = document.createElement('div');
-			card.classList.add('recipe-card');
-			card.innerHTML = `
-				<img src="${meal.strMealThumb}" alt="${meal.strMeal}">
-				<div class="card-info">
-					<h3>${meal.strMeal}</h3>
-					<button>Add to favourites</button>
-				</div>
-			`;
-			resultsContainer.appendChild(card);
-		});
-		shownCount += nextBatch.length;
-		if (shownCount < storedMeals.length) {
-			loadMoreBtn.style.display = 'inline-block';
-		} else {
-			loadMoreBtn.style.display = 'none';
-		}
-	}
-	
+    // DELEGACIÓN DE EVENTOS: Clics en Resultados (Botón Añadir)
+    resultsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('add-btn')) {
+            const id = e.target.getAttribute('data-id');
+            const mealData = STATE.searchResults.find(meal => meal.idMeal === id);
+            if (mealData) {
+                saveFavorite(mealData);
+            }
+        }
+    });
+
+    // DELEGACIÓN DE EVENTOS: Clics en Favoritos (Botón Eliminar)
+    favoritesContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-btn')) {
+            const id = e.target.getAttribute('data-id');
+            removeFavorite(id);
+        }
+    });
+
+    // ==========================================
+    // 5. INICIALIZACIÓN
+    // ==========================================
+    loadFavorites(); // Cargar favoritos al arrancar
 });
-
-// Search bar functionality
 
 
 
