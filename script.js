@@ -60,5 +60,60 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (card) createFavoriteCard(card);
 		});
 	});
+
+	const searchForm = document.getElementById('search-form');
+	const searchInput = document.getElementById('search-input');
+	
+	searchForm.addEventListener('submit', (event) => {
+		event.preventDefault();
+
+		const ingredient = searchInput.value.trim();
+		if (ingredient) {
+			getRecipes(ingredient);
+		} else {
+			alert('Please, type an ingredient...');
+		}
+	});
+
+	async function getRecipes(ingredient) {
+		resultsContainer.innerHTML = '<p>Searching...</p>';
+
+		try {
+			const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`)
+			const data = await response.json();
+
+			if (data.meals) {
+				displayRecipes(data.meals);
+			} else {
+				resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"`;
+			}
+
+		} catch (error) {
+			console.log('Error: ', error);
+			resultsContainer.innerHTML = '<p>There was an error while trying to connect to the API</p>'
+
+		}
+
+		function displayRecipes(meals) {
+			resultsContainer.innerHTML = '';
+			meals.slice(0, 6).forEach(meal => {
+				const card = document.createElement('div');
+				card.classList.add('recipe-card');
+
+				card.innerHTML = `
+					<img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+					<div class="card-info">
+						<h3>${meal.strMeal}</h3>
+						<button>Add to favourites</button>
+					</div>
+				`;
+				resultsContainer.appendChild(card);
+			});
+		}
+	}
 });
+
+// Search bar functionality
+
+
 
