@@ -27,13 +27,13 @@ Thats it!
 [!IMPORTANT]
 ## Features Checklist
 - [x] Working search by ingredient using a public API
-- [X] Clear results list showing recipe names and ingredients
-- [ ] Favorites list saved persistently in LocalStorage (add/remove support)
-- [ ] README file with setup instructions and a short description of design decisions
+- [x] Clear results list showing recipe names and ingredients
+- [x] Favorites list saved persistently in LocalStorage (add/remove support)
+- [x] README file with setup instructions and a short description of design decisions
 - [ ] Basic version of Report (discussed at lecture part)
 - [ ] Form for adding custom recipes with validation
 - [ ] Recipe details view and additional filters or sorting options
 - [ ] Simple caching and API rate-limit handling with a short explanation
 - [ ] At least three unit tests for filtering and favorites functions
-- [ ] Regular commit history in the GitHub repository
+- [x] Regular commit history in the GitHub repository
 - [ ] Detailed report prepared and discussed at the lecture part
