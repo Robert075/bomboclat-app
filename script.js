@@ -6,12 +6,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const favoritesContainer = document.getElementById('favorites-container');
     const loadMoreBtn = document.getElementById('load-more-btn');
 
+    // -- REFERENCIAS MODAL ---
+    const modal = document.getElementById('recipe-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalTitle = document.getElementById('modal-title');
+    const modalImg = document.getElementById('modal-img');
+    const modalInstructions = document.getElementById('modal-instructions');
+    const modalIngredients = document.getElementById('modal-ingredients');
+    const modalFavBtn = document.getElementById('modal-fav-btn');
+
     // --- ESTADO DE LA APLICACIÓN ---
     const STATE = {
         searchResults: [], // Recetas actuales de la búsqueda
         favorites: [],     // Recetas guardadas en favoritos
         shownCount: 0,
-        itemsPerLoad: 6
+        itemsPerLoad: 6,
+        currentRecipe: null
     };
 
     const STORAGE_KEY = 'bomboclat_favorites_v1';
@@ -69,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         batch.forEach(meal => {
             const card = document.createElement('div');
+            card.onclick = () => openRecipeDetails(meal.idMeal);
             card.classList.add('recipe-card');
             card.innerHTML = createCardHTML(meal, 'result');
             resultsContainer.appendChild(card);
@@ -97,6 +108,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function populateModal(recipe) {
+        modalTitle.textContent = recipe.strMeal;
+        modalImg.src = recipe.strMealThumb;
+        modalInstructions.textContent = recipe.strInstructions;
+
+        modalFavBtn.classList.remove('active');
+        modalFavBtn.querySelector('i').className = 'far fa-heart';
+
+        modalIngredients.innerHTML = '';
+        const ul = document.createElement('ul');
+
+        for (let i = 1; i <= 20; i++) {
+            const ingredient = recipe[`strIngredient${i}`];
+            const measure = recipe[`strMeasure${i}`];
+
+            if (ingredient && ingredient.trim() !== "") {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${ingredient}</strong> - ${measure}`;
+                ul.appendChild(li);
+            } else {
+                break; // No hay más ingredientes
+            }
+        }
+        modalIngredients.appendChild(ul);
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        currentRecipe = null;
+    }
+
     // ==========================================
     // 3. API Y BÚSQUEDA
     // ==========================================
@@ -122,6 +164,23 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error(error);
             resultsContainer.innerHTML = '<p>Error connecting to the API.</p>';
+        }
+    }
+
+    async function openRecipeDetails(id) {
+        try {
+            const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+            const data = await response.json();
+            const recipe = data.meals[0];
+
+            if (recipe) {
+                currentRecipe = recipe;
+                populateModal(recipe);
+                modal.style.display = 'flex'; // Mostrar el modal
+            }
+        } catch (error) {
+            console.error("Error fetching details:", error);
+            //alert("No se pudieron cargar los detalles.");
         }
     }
 
@@ -159,6 +218,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('remove-btn')) {
             const id = e.target.getAttribute('data-id');
             removeFavorite(id);
+        }
+    });
+
+    // Botón para cerrar la ventana modal
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', () => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Botón de favoritos del modal
+    modalFavBtn.addEventListener('click', () => {
+        if (!currentRecipe) {
+            return;
+        }
+
+        // Toogle visual
+        const icon = modalFavBtn.querySelector('i');
+        modalFavBtn.classList.toggle('active');
+
+        if (modalFavBtn.classList.contains('active')) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            saveFavorite(currentRecipe)
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            removeFavorite(currentRecipe.idMeal);
         }
     });
 
