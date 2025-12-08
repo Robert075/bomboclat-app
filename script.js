@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createCardHTML(meal, type) {
         // 'type' puede ser 'result' (con botón Add) o 'favorite' (con botón Remove)
         const btnText = type === 'result' ? 'Add to favourites' : 'Remove';
-        const btnClass = type === 'result' ? 'add-btn' : 'remove-btn';
+        const btnClass = 'card-fav-btn';
         
         return `
             <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DELEGACIÓN DE EVENTOS: Clics en Resultados (Botón Añadir)
     resultsContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('add-btn')) {
+        if (e.target.classList.contains('card-favortie-btn')) {
             const id = e.target.getAttribute('data-id');
             const mealData = STATE.searchResults.find(meal => meal.idMeal === id);
             if (mealData) {
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DELEGACIÓN DE EVENTOS: Clics en Favoritos (Botón Eliminar)
     favoritesContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-btn')) {
+        if (e.target.classList.contains('card-favorite-btn')) {
             const id = e.target.getAttribute('data-id');
             removeFavorite(id);
         }
