@@ -19,12 +19,11 @@
   --font-display: 'Limelight', cursive;
   --font-body: 'Montserrat', sans-serif;
 
-  /* --- Variables de Compatibilidad (Añadidas para el Modal) --- */
-  /* Estas son necesarias porque el CSS del modal usa estos nombres antiguos */
+  /* --- Compatibility variables (Added for the modal) --- */
   --white: #ffffff;
   --overlay: rgba(0, 0, 0, 0.7);
   --text: #333333;
-  --primary: var(--primary-color); /* Enlazamos la antigua variable primary a la nueva */
+  --primary: var(--primary-color);
 }
 
 * {
@@ -199,6 +198,24 @@ select:focus {
   margin-bottom: 10px;
 }
 
+.card-fav-btn {
+  margin-top: auto;
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.card-fav-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
 /* =========================================
     6. BUTTONS
     ========================================= */
@@ -278,7 +295,7 @@ footer {
 }
 
 .modal-content {
-  background-color: var(--white); /* Ahora esto funciona porque definimos --white */
+  background-color: var(--white); 
   width: 90%;
   max-width: 800px;
   max-height: 90vh;
