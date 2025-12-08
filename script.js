@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DELEGACIÓN DE EVENTOS: Clics en Favoritos (Botón Eliminar)
     favoritesContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('card-favorite-btn')) {
+        if (e.target.classList.contains('card-fav-btn')) {
             const id = e.target.getAttribute('data-id');
             removeFavorite(id);
         }
