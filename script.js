@@ -78,10 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + STATE.itemsPerLoad);
         
         batch.forEach(meal => {
-            const card = document.createElement('div');
-            card.onclick = () => openRecipeDetails(meal.idMeal);
-            card.classList.add('recipe-card');
-            card.innerHTML = createCardHTML(meal, 'result');
+            const card = CreateFullCard(meal, 'result'); 
             resultsContainer.appendChild(card);
         });
 
@@ -101,11 +98,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         STATE.favorites.forEach(meal => {
-            const card = document.createElement('div');
-            card.classList.add('recipe-card');
-            card.innerHTML = createCardHTML(meal, 'favorite');
+            const card = CreateFullCard(meal, 'favorite');
             favoritesContainer.appendChild(card);
         });
+    }
+
+    function CreateFullCard(meal, type) {
+        const card = document.createElement('div');
+        card.onclick = (e) => { 
+            if (e.target.closest('.card-fav-btn')) {
+                return; // prevent the modal to be opened when the fav button is clicked
+            }
+            openRecipeDetails(meal.idMeal);
+        }
+        card.classList.add('recipe-card');
+        card.innerHTML = createCardHTML(meal, type);
+        return card;
     }
 
     function populateModal(recipe) {
@@ -210,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DELEGACIÓN DE EVENTOS: Clics en Resultados (Botón Añadir)
     resultsContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('card-favortie-btn')) {
+        if (e.target.classList.contains('card-fav-btn')) {
+            e.preventDefault();
             const id = e.target.getAttribute('data-id');
             const mealData = STATE.searchResults.find(meal => meal.idMeal === id);
             if (mealData) {
