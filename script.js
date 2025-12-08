@@ -112,9 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = recipe.strMeal;
         modalImg.src = recipe.strMealThumb;
         modalInstructions.textContent = recipe.strInstructions;
+        const icon = modalFavBtn.querySelector('i');
 
-        modalFavBtn.classList.remove('active');
-        modalFavBtn.querySelector('i').className = 'far fa-heart';
+        if (STATE.favorites.some(fav => fav.idMeal === recipe.idMeal)) {
+            modalFavBtn.classList.add('active');
+            toogleHeartIcon(icon, 'active');
+        } else {
+            modalFavBtn.classList.remove('active');
+            toogleHeartIcon(icon, 'inactive');
+        }
 
         modalIngredients.innerHTML = '';
         const ul = document.createElement('ul');
@@ -240,15 +246,25 @@ document.addEventListener('DOMContentLoaded', () => {
         modalFavBtn.classList.toggle('active');
 
         if (modalFavBtn.classList.contains('active')) {
-            icon.classList.remove('far');
-            icon.classList.add('fas');
-            saveFavorite(currentRecipe)
+            toogleHeartIcon(icon, 'active');
+            saveFavorite(currentRecipe);
         } else {
-            icon.classList.remove('fas');
-            icon.classList.add('far');
+            toogleHeartIcon(icon, 'inactive');
             removeFavorite(currentRecipe.idMeal);
         }
     });
+
+    function toogleHeartIcon(icon, mode) {
+        if (mode === 'active') {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+        } else if (mode === 'inactive') {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+        } else {
+            throw `Unrecognized toogle mode for heart icon: ${mode}`;
+        }
+    }
 
     // ==========================================
     // 5. INICIALIZACIÓN
