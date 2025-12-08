@@ -229,11 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botón para cerrar la ventana modal
     closeModalBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', () => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
 
     // Botón de favoritos del modal
     modalFavBtn.addEventListener('click', () => {
