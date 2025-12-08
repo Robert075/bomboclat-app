@@ -52,6 +52,20 @@ header.header {
   padding: 40px 20px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   margin-bottom: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.bombo-logo {
+  height: 100px;
+  width: auto;
+  border-radius: 50%;
+  border: 3px solid var(--secondary-color);
+  background-color: white; 
+  padding: 5px;
 }
 
 h1 {
@@ -426,3 +440,5 @@ h3.section-title {
   font-weight: 700;
   margin-bottom: 1rem;
 }
+
+
