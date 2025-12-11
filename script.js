@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('results-container');
     const favoritesContainer = document.getElementById('favorites-container');
     const loadMoreBtn = document.getElementById('load-more-btn');
+    const categorySelect = document.getElementById('category-filter');
 
     // -- REFERENCIAS MODAL ---
     const modal = document.getElementById('recipe-modal');
@@ -78,8 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + STATE.itemsPerLoad);
         
         batch.forEach(meal => {
-            const card = CreateFullCard(meal, 'result'); 
-            resultsContainer.appendChild(card);
+            if (categorySelect.value !== 'All Categories') {
+                // Fetch full meal details to get category
+                fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const fullMeal = data.meals[0];
+                        if (fullMeal.strCategory === categorySelect.value) {
+                            const card = CreateFullCard(fullMeal, 'result'); 
+                            resultsContainer.appendChild(card);
+                        }
+                    })
+                    .catch(error => console.error("Error fetching meal details:", error));
+            } else {
+                const card = CreateFullCard(meal, 'result'); 
+                resultsContainer.appendChild(card);
+                STATE
+            }
         });
 
         STATE.shownCount += batch.length;
@@ -171,6 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 STATE.searchResults = data.meals;
                 STATE.shownCount = 0;
                 renderNextBatch();
+                if (STATE.shownCount === 0) {
+                    resultsContainer.innerHTML = `<p>No recipes found in the selected category for "${ingredient}"</p>`;
+                }
             } else {
                 resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"</p>`;
             }
@@ -197,6 +216,24 @@ document.addEventListener('DOMContentLoaded', () => {
             //alert("No se pudieron cargar los detalles.");
         }
     }
+
+    async function createCategoryList() {
+        try {
+            const response = await fetch(`https://www.themealdb.com/api/json/v1/1/categories.php`);
+            const data = await response.json();
+            if (data.categories) {
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.strCategory;
+                    option.textContent = category.strCategory;
+                    categorySelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    }
+
 
     // ==========================================
     // 4. EVENT LISTENER (INTERACCIÓN)
@@ -274,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. INICIALIZACIÓN
     // ==========================================
     loadFavorites(); // Cargar favoritos al arrancar
+    createCategoryList(); // Cargar categorías al inicio
 });
 
 
