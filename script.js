@@ -74,33 +74,47 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // Pinta los resultados de búsqueda
-    function renderNextBatch() {
-        const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + STATE.itemsPerLoad);
-        
-        batch.forEach(meal => {
-            if (categorySelect.value !== 'All Categories') {
-                // Fetch full meal details to get category
-                fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const fullMeal = data.meals[0];
-                        if (fullMeal.strCategory === categorySelect.value) {
-                            const card = CreateFullCard(fullMeal, 'result'); 
-                            resultsContainer.appendChild(card);
-                        }
-                    })
-                    .catch(error => console.error("Error fetching meal details:", error));
-            } else {
-                const card = CreateFullCard(meal, 'result'); 
-                resultsContainer.appendChild(card);
-                STATE
-            }
-        });
+    async function renderNextBatch(itemsToLoad) {
 
+        let loadedCount = 0;
+        const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + itemsToLoad);
         STATE.shownCount += batch.length;
 
-        // Manejo del botón "Ver más"
+        const processingPromises = batch.map(async (meal) => {
+            if (categorySelect.value !== 'All Categories') {
+                try {
+                    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
+                    const data = await response.json();
+                    const fullMeal = data.meals[0];
+
+                    if (fullMeal.strCategory === categorySelect.value) {
+                        meal = fullMeal; // Usamos la info completa
+                        const card = CreateFullCard(meal, 'result'); 
+                        resultsContainer.appendChild(card);
+                        return 1;
+                    } 
+                } catch (error) {
+                    console.error("Error verificando categoría:", error);
+                }
+            } else {
+                    const card = CreateFullCard(meal, 'result'); 
+                    resultsContainer.appendChild(card);
+                    return 1;
+            }
+            return 0;
+        });
+
+        const results = await Promise.all(processingPromises);
+
+        loadedCount = results.reduce((a, b) => a + b, 0);
+
+        // Recursive call if we still need more items
+        if (loadedCount < itemsToLoad && STATE.shownCount < STATE.searchResults.length) {
+            const remaining = itemsToLoad - loadedCount;
+            await renderNextBatch(remaining);
+        }
+
+        // Update the Load More button visibility
         loadMoreBtn.style.display = (STATE.shownCount < STATE.searchResults.length) ? 'inline-block' : 'none';
     }
 
@@ -186,10 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.meals) {
                 STATE.searchResults = data.meals;
                 STATE.shownCount = 0;
-                renderNextBatch();
-                if (STATE.shownCount === 0) {
-                    resultsContainer.innerHTML = `<p>No recipes found in the selected category for "${ingredient}"</p>`;
-                }
+                renderNextBatch(STATE.itemsPerLoad);
             } else {
                 resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"</p>`;
             }
@@ -251,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Botón "Cargar más"
-    loadMoreBtn.addEventListener('click', renderNextBatch);
+    loadMoreBtn.addEventListener('click', () => renderNextBatch(STATE.itemsPerLoad));
 
     // DELEGACIÓN DE EVENTOS: Clics en Resultados (Botón Añadir)
     resultsContainer.addEventListener('click', (e) => {
