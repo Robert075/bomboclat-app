@@ -146,7 +146,8 @@ select:focus {
 
 /* Styling for empty state messages */
 #results-container p,
-#favorites-container p {
+#favorites-container p,
+#custom-recipes-container p  {
   grid-column: 1 / -1;
   text-align: center;
   color: #666;
