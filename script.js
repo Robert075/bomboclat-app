@@ -121,47 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function renderNextBatch(itemsToLoad) {
+       const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + STATE.itemsPerLoad);
 
-        let loadedCount = 0;
-        const batch = STATE.searchResults.slice(STATE.shownCount, STATE.shownCount + itemsToLoad);
-        STATE.shownCount += batch.length;
-
-        const processingPromises = batch.map(async (meal) => {
-            if (categorySelect.value !== 'All Categories') {
-                try {
-                    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
-                    const data = await response.json();
-                    const fullMeal = data.meals[0];
-
-                    if (fullMeal.strCategory === categorySelect.value) {
-                        meal = fullMeal; // Usamos la info completa
-                        const card = CreateFullCard(meal, 'result'); 
-                        resultsContainer.appendChild(card);
-                        return 1;
-                    } 
-                } catch (error) {
-                    console.error("Error verificando categoría:", error);
-                }
-            } else {
-                    const card = CreateFullCard(meal, 'result'); 
-                    resultsContainer.appendChild(card);
-                    return 1;
-            }
-            return 0;
+        batch.forEach(meal => {
+            const card = CreateFullCard(meal, 'result'); 
+            resultsContainer.appendChild(card);
         });
 
-        const results = await Promise.all(processingPromises);
+        STATE.shownCount += batch.length;
 
-        loadedCount = results.reduce((a, b) => a + b, 0);
-
-        // Recursive call if we still need more items
-        if (loadedCount < itemsToLoad && STATE.shownCount < STATE.searchResults.length) {
-            const remaining = itemsToLoad - loadedCount;
-            await renderNextBatch(remaining);
-        }
-
-        // Update the Load More button visibility
-        loadMoreBtn.style.display = (STATE.shownCount < STATE.searchResults.length) ? 'inline-block' : 'none';
+        // Manejo del botón "Ver más"
+        loadMoreBtn.style.display = (STATE.shownCount < STATE.searchResults.length) ? 'inline-block' : 'none'; 
     }
 
     // Pinta la lista de favoritos
@@ -259,21 +229,49 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchRecipes(ingredient) {
         resultsContainer.innerHTML = '<p>Searching...</p>';
         loadMoreBtn.style.display = 'none';
+        const category = categorySelect.value;
         
         try {
             const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`);
             const data = await response.json();
-
             resultsContainer.innerHTML = ''; // Limpiar mensaje de carga
 
-            if (data.meals) {
-                STATE.searchResults = data.meals;
-                STATE.shownCount = 0;
-                renderNextBatch(STATE.itemsPerLoad);
-            } else {
+            if (!data.meals) {
                 resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}"</p>`;
+                return;
             }
 
+            if (category !== 'All Categories') {
+                let mealsLookup = data.meals.map(async (meal) => {
+                    try {
+                        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
+                        const newData = await response.json();
+                        const fullMeal = newData.meals[0];
+                        return fullMeal.strCategory === category ? fullMeal : null;
+                    } catch (error) {
+                        console.error("Error: ", error);
+                    }
+                });
+                const results = await Promise.all(mealsLookup);
+                let filteredMeals = []
+                for (meal of results) {
+                    if (!meal) {
+                        continue;
+                    }
+                    filteredMeals.push(meal);
+                }
+                data.meals = filteredMeals;
+            }
+            console.log(data.meals)
+            
+            if (data.meals.length === 0) {
+                resultsContainer.innerHTML = `<p>No recipe found for "${ingredient}" in category ${category}</p>`;
+                return;
+            }
+
+            STATE.searchResults = data.meals;
+            STATE.shownCount = 0;
+            renderNextBatch(STATE.itemsPerLoad);
         } catch (error) {
             console.error(error);
             resultsContainer.innerHTML = '<p>Error connecting to the API.</p>';
