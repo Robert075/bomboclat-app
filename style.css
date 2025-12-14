@@ -136,7 +136,8 @@ select:focus {
     ========================================= */
 /* Using Grid instead of Flexbox for better alignment of cards */
 #results-container,
-#favorites-container {
+#favorites-container,
+#custom-recipes-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
@@ -441,4 +442,55 @@ h3.section-title {
   margin-bottom: 1rem;
 }
 
+/* Botón principal */
+.add-custom-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
 
+.add-custom-btn:hover {
+    background-color: #e65b50;
+}
+
+/* Estilos del formulario dentro de la modal */
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group input, 
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}

@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bomboclat</title>
     <link rel="stylesheet" href="style.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Limelight&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
   <body>
-    <header class="header">
-      <img src="Bomboclat-logo.png" alt="Bomboclat Logo" class="bombo-logo">
-      <h1 id="title">Recipe Search Application</h1>
-    </header>
+  <header class="header">
+    <img src="Bomboclat-logo.png" alt="Bomboclat Logo" class="bombo-logo">
+    <h1 id="title">Recipe Search Application</h1>
+  </header>
     <!---- About Section -->
     <section id="about-section">
       <h2>About our App</h2>
@@ -36,6 +36,7 @@
           <option value="All Categories">All Categories</option>
         </select>
         <button type="submit">Search</button>
+        <button id="add-recipe-btn" class="add-custom-btn">Add Own Recipe</button>
       </form>
     </section>
 
@@ -52,6 +53,13 @@
       <h2>Favourite recipes</h2>
       <div id="favorites-container">
         <p>No favourites yet... Add some recipes!</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>My Own Recipes</h2>
+      <div id="custom-recipes-container">
+        <p>You haven't added any recipes yet.</p>
       </div>
     </section>
     
@@ -90,6 +98,41 @@
                         </p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div id="add-recipe-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Recipe</h2>
+                <button class="close-btn" id="close-add-modal-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-recipe-form">
+                    <div class="form-group">
+                        <label for="custom-title">Recipe Title:</label>
+                        <input type="text" id="custom-title" required placeholder="Ex: Grandma's Apple Pie">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="custom-img">Image URL (Optional):</label>
+                        <input type="url" id="custom-img" placeholder="https://example.com/image.jpg">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="custom-instructions">Instructions:</label>
+                        <textarea id="custom-instructions" rows="4" required placeholder="Step 1: Mix..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="custom-ingredients">Ingredients (One per line):</label>
+                        <textarea id="custom-ingredients" rows="5" required placeholder="1 cup Flour&#10;2 Eggs&#10;200ml Milk"></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Save Recipe</button>
+                </form>
             </div>
         </div>
     </div>

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const favoritesContainer = document.getElementById('favorites-container');
     const loadMoreBtn = document.getElementById('load-more-btn');
     const categorySelect = document.getElementById('category-filter');
+    const customRecipesContainer = document.getElementById('custom-recipes-container');
 
     // -- REFERENCIAS MODAL ---
     const modal = document.getElementById('recipe-modal');
@@ -33,8 +34,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadFavorites() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        STATE.favorites = stored ? JSON.parse(stored) : [];
-        renderFavorites(); // Pintar al cargar la página
+        const allSaved = stored ? JSON.parse(stored) : [];
+
+        // Separamos las recetas: Las que tienen ID 'custom-' van a un lado, las otras a favoritos
+        STATE.customRecipes = allSaved.filter(r => String(r.idMeal).startsWith('custom-'));
+        STATE.favorites = allSaved.filter(r => !String(r.idMeal).startsWith('custom-'));
+
+        renderFavorites();
+        renderCustomRecipes(); // <--- Pintamos la nueva sección
+    }
+
+    // Función específica para guardar recetas propias
+    function saveCustomRecipe(recipe) {
+        STATE.customRecipes.push(recipe);
+        updateLocalStorage();
+        renderCustomRecipes();
+        alert('Recipe added to your list!');
+    }
+
+    function renderCustomRecipes() {
+        customRecipesContainer.innerHTML = '';
+        
+        if (STATE.customRecipes.length === 0) {
+            customRecipesContainer.innerHTML = '<p>You haven\'t added any recipes yet.</p>';
+            return;
+        }
+
+        STATE.customRecipes.forEach(meal => {
+            // Usamos 'favorite' como tipo para tener el botón de borrar
+            const card = CreateFullCard(meal, 'custom'); 
+            customRecipesContainer.appendChild(card);
+        });
+    }
+
+    // Unificamos el guardado en LocalStorage
+    function updateLocalStorage() {
+        // Guardamos AMBAS listas juntas en el mismo "cajón" del navegador para simplificar
+        const allData = [...STATE.favorites, ...STATE.customRecipes];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
     }
 
     function saveFavorite(recipe) {
@@ -51,8 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function removeFavorite(idMeal) {
         STATE.favorites = STATE.favorites.filter(recipe => recipe.idMeal !== idMeal);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE.favorites));
+        updateLocalStorage(); 
         renderFavorites();
+    }
+
+    function removeCustomRecipe(idMeal) {
+        STATE.customRecipes = STATE.customRecipes.filter(recipe => recipe.idMeal !== idMeal);
+        updateLocalStorage();
+        renderCustomRecipes();
     }
 
     // ==========================================
@@ -120,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Pinta la lista de favoritos
     function renderFavorites() {
-        favoritesContainer.innerHTML = ''; // Limpiar contenedor
+        favoritesContainer.innerHTML = ''; // Clean the container
 
         if (STATE.favorites.length === 0) {
             favoritesContainer.innerHTML = '<p>No favourites yet... Add some recipes!</p>';
@@ -212,6 +255,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openRecipeDetails(id) {
+        // 1. VERIFICAR SI ES UNA RECETA PROPIA (Local)
+        if (String(id).startsWith('custom-')) {
+            const localRecipe = STATE.customRecipes.find(r => r.idMeal === id);
+            if (localRecipe) {
+                currentRecipe = localRecipe;
+                populateModal(localRecipe);
+                modal.style.display = 'flex';
+                
+                // Ajustar el botón de favorito del modal para permitir borrarla
+                const icon = modalFavBtn.querySelector('i');
+                modalFavBtn.classList.add('active'); // Siempre activa porque es nuestra
+                toogleHeartIcon(icon, 'active');
+            }
+            return; // ¡IMPORTANTE! Salimos aquí para no llamar a la API
+        }
+
+        // 2. SI NO ES PROPIA, BUSCAMOS EN LA API (Código original)
         try {
             const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
             const data = await response.json();
@@ -220,11 +280,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (recipe) {
                 currentRecipe = recipe;
                 populateModal(recipe);
-                modal.style.display = 'flex'; // Mostrar el modal
+                modal.style.display = 'flex';
             }
         } catch (error) {
             console.error("Error fetching details:", error);
-            //alert("No se pudieron cargar los detalles.");
         }
     }
 
@@ -250,6 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. EVENT LISTENER (INTERACCIÓN)
     // ==========================================
 
+    customRecipesContainer.addEventListener('click', (e) => {
+        // Verificamos si lo que se clickeó es el botón "Remove"
+        if (e.target.classList.contains('card-fav-btn')) {
+            const id = e.target.getAttribute('data-id');
+            
+            // Preguntamos al usuario para confirmar (opcional, pero recomendado)
+            if (confirm('Are you sure you want to delete this recipe?')) {
+                removeCustomRecipe(id);
+            }
+        }
+    });
     // Formulario de Búsqueda
     searchForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -319,10 +389,75 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 5. INICIALIZACIÓN
+    // 5. INITIALIZATION
     // ==========================================
-    loadFavorites(); // Cargar favoritos al arrancar
-    createCategoryList(); // Cargar categorías al inicio
+    loadFavorites(); 
+    createCategoryList();
+
+    // ==========================================
+    // LOGIC FOR ADDING CUSTOM RECIPES
+    // ==========================================
+
+    const addRecipeBtn = document.getElementById('add-recipe-btn');
+    const addRecipeModal = document.getElementById('add-recipe-modal');
+    const closeAddModalBtn = document.getElementById('close-add-modal-btn');
+    const addRecipeForm = document.getElementById('add-recipe-form');
+
+    // Abrir modal
+    addRecipeBtn.addEventListener('click', () => {
+        addRecipeModal.style.display = 'flex';
+    });
+
+    // Cerrar modal
+    closeAddModalBtn.addEventListener('click', () => {
+        addRecipeModal.style.display = 'none';
+    });
+
+    // Manejar el envío del formulario
+    addRecipeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById('custom-title').value;
+        const imgUrl = document.getElementById('custom-img').value;
+        const instructions = document.getElementById('custom-instructions').value;
+        const ingredientsText = document.getElementById('custom-ingredients').value;
+
+        // Crear objeto de receta compatible con la estructura de la API
+        // Generamos un ID único usando Date.now()
+        const newRecipe = {
+            idMeal: `custom-${Date.now()}`, 
+            strMeal: title,
+            strMealThumb: imgUrl || 'https://via.placeholder.com/300?text=No+Image', // Default img
+            strInstructions: instructions,
+            strCategory: 'Custom'
+        };
+
+        // Procesar ingredientes (dividir por líneas) para que encajen en strIngredient1, etc.
+        const lines = ingredientsText.split('\n');
+        lines.forEach((line, index) => {
+            if (index < 20 && line.trim() !== '') {
+                newRecipe[`strIngredient${index + 1}`] = line.trim();
+                newRecipe[`strMeasure${index + 1}`] = ''; // Dejamos la medida vacía o incluida en el ingrediente
+            }
+        });
+
+        // Guardar en favoritos
+        saveCustomRecipe(newRecipe);
+        
+        // Limpiar y cerrar
+        addRecipeForm.reset();
+        addRecipeModal.style.display = 'none';
+        
+        // Hacer scroll hacia favoritos para ver el resultado
+        favoritesContainer.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Cerrar modal si se hace click fuera del contenido
+    window.addEventListener('click', (e) => {
+        if (e.target === addRecipeModal) {
+            addRecipeModal.style.display = 'none';
+        }
+    });
 });
 
 
