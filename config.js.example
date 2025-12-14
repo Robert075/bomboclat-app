@@ -1,0 +1,3 @@
+const CONFIG = {
+  CALORIE_NINJA_API_KEY: "YOUR_KEY"
+};
