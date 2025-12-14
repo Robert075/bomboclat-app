@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalInstructions = document.getElementById('modal-instructions');
     const modalIngredients = document.getElementById('modal-ingredients');
     const modalFavBtn = document.getElementById('modal-fav-btn');
+    const nutritionPanel = document.getElementById('modal-nutrition');
+
+    const NINJA_API_KEY = ''
 
     // --- ESTADO DE LA APLICACIÓN ---
     const STATE = {
@@ -226,6 +229,29 @@ document.addEventListener('DOMContentLoaded', () => {
         currentRecipe = null;
     }
 
+    function displayNutritionInfo(fat, cholesterol, carbs, sugar) {
+        console.log("In nutrition thing")
+        nutritionPanel.innerHTML = `
+            <h4 style="margin:0 0 10px 0; color:var(--primary-color); border-bottom:1px solid #ddd;">Total Nutrition</h4>
+            <div class="nutrition-item">
+                <strong><i class="fas fa-bacon"></i> Total Fat:</strong>
+                <span>${fat.toFixed(1)}g</span>
+            </div>
+            <div class="nutrition-item">
+                <strong><i class="fas fa-heartbeat"></i> Cholesterol:</strong>
+                <span>${cholesterol.toFixed(1)}mg</span>
+            </div>
+            <div class="nutrition-item">
+                <strong><i class="fas fa-bread-slice"></i> Carbs:</strong>
+                <span>${carbs.toFixed(1)}g</span>
+            </div>
+            <div class="nutrition-item">
+                <strong><i class="fas fa-candy-cane"></i> Sugar:</strong>
+                <span>${sugar.toFixed(1)}g</span>
+            </div>
+        `
+    }
+
     // ==========================================
     // 3. API Y BÚSQUEDA
     // ==========================================
@@ -255,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openRecipeDetails(id) {
-        // 1. VERIFICAR SI ES UNA RECETA PROPIA (Local)
+        // 1. VERIFICAR SI ES UNA RECETA PROPIA
         if (String(id).startsWith('custom-')) {
             const localRecipe = STATE.customRecipes.find(r => r.idMeal === id);
             if (localRecipe) {
@@ -268,10 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalFavBtn.classList.add('active'); // Siempre activa porque es nuestra
                 toogleHeartIcon(icon, 'active');
             }
-            return; // ¡IMPORTANTE! Salimos aquí para no llamar a la API
+            return;
         }
 
-        // 2. SI NO ES PROPIA, BUSCAMOS EN LA API (Código original)
+        // 2. SI NO ES PROPIA, BUSCAMOS EN LA API
         try {
             const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
             const data = await response.json();
@@ -281,10 +307,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentRecipe = recipe;
                 populateModal(recipe);
                 modal.style.display = 'flex';
+
+                const ingredientQuery = getIngredientListWithMeasures(recipe).join(' ');
+                console.log("Nutrition List: ", ingredientQuery)
+
+                if (NINJA_API_KEY && ingredientQuery) {
+                    try {
+                        const {totalFat, totalCholesterol, totalCarbs, totalSugar} = await getNutrition(ingredientQuery);
+                        console.log(totalFat, totalCholesterol, totalCarbs, totalSugar);
+                        displayNutritionInfo(totalFat, totalCholesterol, totalCarbs, totalSugar);
+                    } catch (error) {
+                        console.log("Error: ", error)
+                        nutritionPanel.innerHTML = '<p style="text-align:center;">Nutrition info not available</p>'
+                    }
+                } else if (!NINJA_API_KEY) {
+                    console.log("hola");
+                    nutritionPanel.innerHTML = '<p style="color:red; text-align:center;"> API key missing</p>';
+                } else {
+                    console.log("adios")
+                    nutritionPanel.innerHTML = '<p style="text-align:center;"> No ingredients found</p>';
+                }
             }
         } catch (error) {
             console.error("Error fetching details:", error);
         }
+    }
+
+    function getIngredientListWithMeasures(recipe) {
+        let ingredientWithMeasures = []
+        for (let i = 1; i <= 20; i++) {
+            const ingredient = recipe[`strIngredient${i}`]
+            const measure = recipe[`strMeasure${i}`]
+            if (ingredient && ingredient.trim !== "") {
+                const cleanMeasure = measure ? measure.trim() : '';
+                const cleanIngredient = ingredient.trim();
+                ingredientWithMeasures.push(`${cleanMeasure} ${cleanIngredient}`);
+            } else {
+                break; 
+            }
+        }
+        return ingredientWithMeasures;
     }
 
     async function createCategoryList() {
@@ -301,6 +363,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Error fetching categories:", error);
+        }
+    }
+
+    async function getNutrition(query) {
+        
+        try {
+            const encodedQuery = encodeURIComponent(query);
+            const response = await fetch(`https://api.api-ninjas.com/v1/nutrition?query=${encodedQuery}`, {
+                method: "GET",
+                headers: { 'X-Api-Key': NINJA_API_KEY }
+            });
+            if (!response.ok) throw new Error('Network error...');
+
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                let totalFat = 0;
+                let totalCholesterol = 0;
+                let totalCarbs = 0;
+                let totalSugar = 0;
+
+                // Add the total values from ingredients
+                data.forEach(item => {
+                    totalFat += item.fat_total_g ?? 0;
+                    totalCholesterol += item.cholesterol_mg ?? 0;
+                    totalCarbs += item.carbohydrates_total_g ?? 0;
+                    totalSugar += item.sugar_g ?? 0;
+                });
+                console.log(totalFat, totalCholesterol, totalCarbs, totalSugar);
+                return {totalFat, totalCholesterol, totalCarbs, totalSugar};
+            } else {
+                throw new Error("No ingredients found...")
+            }
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error loading nutrition...")
         }
     }
 
