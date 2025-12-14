@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalFavBtn = document.getElementById('modal-fav-btn');
     const nutritionPanel = document.getElementById('modal-nutrition');
 
-    const NINJA_API_KEY = ''
+    const NINJA_API_KEY = CONFIG.CALORIE_NINJA_API_KEY;
 
     // --- ESTADO DE LA APLICACIÓN ---
     const STATE = {
