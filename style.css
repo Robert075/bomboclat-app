@@ -131,6 +131,20 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(20, 69, 61, 0.1);
 }
 
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--secondary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.section-header-row h2 {
+  border-bottom: none; 
+  margin-bottom: 0;
+}
+
 /* =========================================
     4. LAYOUT (GRID SYSTEM)
     ========================================= */
@@ -246,7 +260,7 @@ button {
 }
 
 /* Default button (Search) */
-button[type="submit"], button.search-btn {
+.general-btn {
   background-color: var(--primary-color);
   color: white;
 }
