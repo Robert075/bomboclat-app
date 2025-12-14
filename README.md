@@ -19,6 +19,10 @@ Individuals dealing with diabetes who are looking for a simple, fast and reliabl
 - CSS
 - JavaScript
 
+For this project we are using 2 APIs: [TheMealDB](https://www.themealdb.com/api.php) for the recipes and [API Ninjas](https://api-ninjas.com/) to get nutrient information about the meals.
+
+In order to use the second one, you'll need an API key. Since this project does not have any framework to deal with backend, the only way to securely store your key is using the `config.js` file. Refer to the [config file](/config.js.example) and copy it in your local machine. Change the file name to `config.js`.
+
 ## How to Run
 1. Download this repository.
 2. Open index.html in your browser.
