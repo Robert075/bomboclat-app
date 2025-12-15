@@ -523,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newRecipe = {
             idMeal: `custom-${Date.now()}`, 
             strMeal: title,
-            strMealThumb: imgUrl || 'https://via.placeholder.com/300?text=No+Image', // Default img
+            strMealThumb: imgUrl || 'https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg', // Default img
             strInstructions: instructions,
             strCategory: 'Custom'
         };
