@@ -1,35 +1,37 @@
+// --- REFERENES TO DOM ---
+const searchForm = document.getElementById('search-form');
+const searchInput = document.getElementById('search-input');
+const resultsContainer = document.getElementById('results-container');
+const favoritesContainer = document.getElementById('favorites-container');
+const loadMoreBtn = document.getElementById('load-more-btn');
+const categorySelect = document.getElementById('category-filter');
+const customRecipesContainer = document.getElementById('custom-recipes-container');
+
+// --- REFERENCES TO MODALS ---
+const modal = document.getElementById('recipe-modal');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const modalTitle = document.getElementById('modal-title');
+const modalImg = document.getElementById('modal-img');
+const modalInstructions = document.getElementById('modal-instructions');
+const modalIngredients = document.getElementById('modal-ingredients');
+const modalFavBtn = document.getElementById('modal-fav-btn');
+const nutritionPanel = document.getElementById('modal-nutrition');
+
+// --- KEYS ---
+const NINJA_API_KEY = CONFIG.CALORIE_NINJA_API_KEY;
+const STORAGE_KEY = CONFIG.STORAGE_KEY;
+
+// --- APP STATE ---
+const STATE = {
+    searchResults: [], // Recetas actuales de la búsqueda
+    favorites: [],     // Recetas guardadas en favoritos
+    shownCount: 0,
+    itemsPerLoad: 6,
+    currentRecipe: null
+};
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    // --- REFERENCIAS DOM ---
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search-input');
-    const resultsContainer = document.getElementById('results-container');
-    const favoritesContainer = document.getElementById('favorites-container');
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    const categorySelect = document.getElementById('category-filter');
-    const customRecipesContainer = document.getElementById('custom-recipes-container');
-
-    // -- REFERENCIAS MODAL ---
-    const modal = document.getElementById('recipe-modal');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const modalTitle = document.getElementById('modal-title');
-    const modalImg = document.getElementById('modal-img');
-    const modalInstructions = document.getElementById('modal-instructions');
-    const modalIngredients = document.getElementById('modal-ingredients');
-    const modalFavBtn = document.getElementById('modal-fav-btn');
-    const nutritionPanel = document.getElementById('modal-nutrition');
-
-    const NINJA_API_KEY = CONFIG.CALORIE_NINJA_API_KEY;
-    const STORAGE_KEY = CONFIG.STORAGE_KEY;
-
-    // --- ESTADO DE LA APLICACIÓN ---
-    const STATE = {
-        searchResults: [], // Recetas actuales de la búsqueda
-        favorites: [],     // Recetas guardadas en favoritos
-        shownCount: 0,
-        itemsPerLoad: 6,
-        currentRecipe: null
-    };
-
 
     // ==========================================
     // 1. GESTIÓN DE LOCALSTORAGE Y DATOS
