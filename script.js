@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         STATE.customRecipes.push(recipe);
         updateLocalStorage();
         renderCustomRecipes();
-        alert('Recipe added to your list!');
+        //alert('Recipe added to your list!');
     }
 
     function renderCustomRecipes() {
