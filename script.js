@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nutritionPanel = document.getElementById('modal-nutrition');
 
     const NINJA_API_KEY = CONFIG.CALORIE_NINJA_API_KEY;
+    const STORAGE_KEY = CONFIG.STORAGE_KEY;
 
     // --- ESTADO DE LA APLICACIÓN ---
     const STATE = {
@@ -29,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentRecipe: null
     };
 
-    const STORAGE_KEY = 'bomboclat_favorites_v1';
 
     // ==========================================
     // 1. GESTIÓN DE LOCALSTORAGE Y DATOS
