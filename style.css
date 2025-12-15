@@ -474,38 +474,37 @@ h3.section-title {
 
 /* Estilos del formulario dentro de la modal */
 .form-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    text-align: left;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
-
 .form-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
 }
-
 .form-group input, 
 .form-group textarea {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-family: inherit;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  width: 100%;
 }
-
+/* Submit button specific style (overriding generic if needed, but using theme color) */
 .submit-btn {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 12px;
-    width: 100%;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
+  background-color: var(--primary-color); /* Using theme green instead of #28a745 */
+  color: white;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  font-weight: bold;
 }
-
 .submit-btn:hover {
-    background-color: #218838;
+  background-color: var(--secondary-color);
 }
