@@ -1,5 +1,3 @@
-//import {getNutritionInfoHTML, getIngredientListWithMeasures, createCardHTML, saveFavorite, removeFavorite} from "./src/utils"
-
 // --- REFERENES TO DOM ---
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
