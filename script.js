@@ -1,4 +1,4 @@
-const {getNutritionInfoHTML, getIngredientListWithMeasures, createCardHTML} = require("./src/utils")
+//import {getNutritionInfoHTML, getIngredientListWithMeasures, createCardHTML, saveFavorite, removeFavorite} from "./src/utils"
 
 // --- REFERENES TO DOM ---
 const searchForm = document.getElementById('search-form');
@@ -87,20 +87,19 @@ function updateLocalStorage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
 }
 
-function saveFavorite(recipe) {
+function saveFavoriteAndUpdate(recipe) {
     // Avoid duplicates
-    if (STATE.favorites.some(fav => fav.idMeal === recipe.idMeal)) {
+    if (!saveFavorite(recipe, STATE.favorites)) {
         alert('Recipe already in favorites!');
         return;
     }
-    STATE.favorites.push(recipe);
     updateLocalStorage();
     renderFavorites();
     // alert('Added to favorites!');
 }
 
-function removeFavorite(idMeal) {
-    STATE.favorites = STATE.favorites.filter(recipe => recipe.idMeal !== idMeal);
+function removeFavoriteAndUpdate(idMeal) {
+    STATE.favorites = removeFavorite(idMeal, STATE.favorites);
     updateLocalStorage(); 
     renderFavorites();
 }
@@ -390,7 +389,7 @@ resultsContainer.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-id');
         const mealData = STATE.searchResults.find(meal => meal.idMeal === id);
         if (mealData) {
-            saveFavorite(mealData);
+            saveFavoriteAndUpdate(mealData);
         }
     }
 });
@@ -399,7 +398,7 @@ resultsContainer.addEventListener('click', (e) => {
 favoritesContainer.addEventListener('click', (e) => {
     if (e.target.classList.contains('card-fav-btn')) {
         const id = e.target.getAttribute('data-id');
-        removeFavorite(id);
+        removeFavoriteAndUpdate(id);
     }
 });
 
@@ -416,10 +415,10 @@ modalFavBtn.addEventListener('click', () => {
     modalFavBtn.classList.toggle('active');
     if (modalFavBtn.classList.contains('active')) {
         toogleHeartIcon(icon, 'active');
-        saveFavorite(currentRecipe);
+        saveFavoriteAndUpdate(currentRecipe);
     } else {
         toogleHeartIcon(icon, 'inactive');
-        removeFavorite(currentRecipe.idMeal);
+        removeFavoriteAndUpdate(currentRecipe.idMeal);
     }
 });
 

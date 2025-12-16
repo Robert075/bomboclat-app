@@ -34,7 +34,8 @@ function createCardHTML(meal, type) {
     `;
 }
 
-
+// The function returns a list of ingredients with measures
+// eg. ["200gr dried pasta", "200ml water"]
 function getIngredientListWithMeasures(recipe) {
     let ingredientWithMeasures = []
     for (let i = 1; i <= 20; i++) {
@@ -51,4 +52,23 @@ function getIngredientListWithMeasures(recipe) {
     return ingredientWithMeasures;
 }
 
-module.exports = {getNutritionInfoHTML, createCardHTML, getIngredientListWithMeasures};
+function saveFavorite(recipe, favoriteList) {
+  if (favoriteList.some(fav => fav.idMeal === recipe.idMeal)) {
+    return false;
+  }
+  favoriteList.push(recipe);
+  return true;
+}
+
+function removeFavorite(idMeal, favoriteList) {
+  favoriteList = favoriteList.filter(fav => fav.idMeal !== idMeal);
+  return favoriteList;
+}
+
+module.exports = {
+  getNutritionInfoHTML, 
+  createCardHTML, 
+  getIngredientListWithMeasures,
+  saveFavorite,
+  removeFavorite
+};
