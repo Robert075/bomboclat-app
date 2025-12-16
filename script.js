@@ -1,3 +1,5 @@
+const {getNutritionInfoHTML, getIngredientListWithMeasures, createCardHTML} = require("./src/utils")
+
 // --- REFERENES TO DOM ---
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
@@ -24,8 +26,8 @@ const closeAddModalBtn = document.getElementById('close-add-modal-btn');
 const addRecipeForm = document.getElementById('add-recipe-form');
 
 // --- KEYS ---
-const NINJA_API_KEY = CONFIG.CALORIE_NINJA_API_KEY;
-const STORAGE_KEY = CONFIG.STORAGE_KEY;
+const NINJA_API_KEY = CONFIG.CALORIE_NINJA_API_KEY ?? "";
+const STORAGE_KEY = CONFIG.STORAGE_KEY ?? "bomboclat";
 
 // --- APP STATE ---
 const STATE = {
@@ -109,38 +111,10 @@ function removeCustomRecipe(idMeal) {
     renderCustomRecipes();
 }
 
-function getIngredientListWithMeasures(recipe) {
-    let ingredientWithMeasures = []
-    for (let i = 1; i <= 20; i++) {
-        const ingredient = recipe[`strIngredient${i}`]
-        const measure = recipe[`strMeasure${i}`]
-        if (ingredient && ingredient.trim !== "") {
-            const cleanMeasure = measure ? measure.trim() : '';
-            const cleanIngredient = ingredient.trim();
-            ingredientWithMeasures.push(`${cleanMeasure} ${cleanIngredient}`);
-        } else {
-            break; 
-        }
-    }
-    return ingredientWithMeasures;
-}
-
 // ==========================================
 // 2. RENDER LOGIC
 // ==========================================
 // Creates the HTML for a card
-function createCardHTML(meal, type) {
-    // 'type' can be either 'result' (with Add button) or 'favvorite' (with Remove button)
-    const btnText = type === 'result' ? 'Add to favourites' : 'Remove';
-    const btnClass = 'card-fav-btn';
-    return `
-        <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
-        <div class="card-info">
-            <h3>${meal.strMeal}</h3>
-            <button class="${btnClass}" data-id="${meal.idMeal}">${btnText}</button>
-        </div>
-    `;
-}
 
 function renderNextBatch(itemsPerLoad) {
     console.log(STATE.searchResults)
@@ -210,28 +184,6 @@ function populateModal(recipe) {
 function closeModal() {
     modal.style.display = 'none';
     currentRecipe = null;
-}
-
-function getNutritionInfoHTML(fat, cholesterol, carbs, sugar) {
-   return `
-        <h4 style="margin:0 0 10px 0; color:var(--primary-color); border-bottom:1px solid #ddd;">Total Nutrition</h4>
-        <div class="nutrition-item">
-            <strong><i class="fas fa-bacon"></i> Total Fat:</strong>
-            <span>${fat.toFixed(1)}g</span>
-        </div>
-        <div class="nutrition-item">
-            <strong><i class="fas fa-heartbeat"></i> Cholesterol:</strong>
-            <span>${cholesterol.toFixed(1)}mg</span>
-        </div>
-        <div class="nutrition-item">
-            <strong><i class="fas fa-bread-slice"></i> Carbs:</strong>
-            <span>${carbs.toFixed(1)}g</span>
-        </div>
-        <div class="nutrition-item">
-            <strong><i class="fas fa-candy-cane"></i> Sugar:</strong>
-            <span>${sugar.toFixed(1)}g</span>
-        </div>
-    `; 
 }
 
 function displayNutritionInfo(fat, cholesterol, carbs, sugar) {
@@ -522,8 +474,3 @@ window.addEventListener('click', (e) => {
         addRecipeModal.style.display = 'none';
     }
 });
-
-
-
-
-
