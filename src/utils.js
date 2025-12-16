@@ -65,10 +65,22 @@ function removeFavorite(idMeal, favoriteList) {
   return favoriteList;
 }
 
+function countIngredients(meal) {
+    let count = 0;
+    for (let i = 1; i <= 20; i++) {
+        const ingredient = meal[`strIngredient${i}`];
+        if (ingredient && ingredient.trim() !== "") {
+            count++;
+        }
+    }
+    return count;
+}
+
 module.exports = {
   getNutritionInfoHTML, 
   createCardHTML, 
   getIngredientListWithMeasures,
   saveFavorite,
-  removeFavorite
+  removeFavorite,
+  countIngredients
 };

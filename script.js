@@ -6,6 +6,7 @@ const favoritesContainer = document.getElementById('favorites-container');
 const loadMoreBtn = document.getElementById('load-more-btn');
 const categorySelect = document.getElementById('category-filter');
 const customRecipesContainer = document.getElementById('custom-recipes-container');
+const sortSelect = document.getElementById('sort-select');
 
 // --- REFERENCES TO RECIPE MODAL ---
 const modal = document.getElementById('recipe-modal');
@@ -240,29 +241,29 @@ async function fetchRecipes(ingredient) {
 }
 
 async function getMealsFromCategory(meals, category) {
-    if (category === 'All Categories') {
-        return meals;
-    }
+    // We have all meals from the ingredient search
     let mealsLookup = meals.map(async (meal) => {
         try {
             const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
             const newData = await response.json();
             const fullMeal = newData.meals[0];
-            return fullMeal.strCategory === category ? fullMeal : null;
+
+            if (category === 'All Categories') {
+                return fullMeal;
+            } else {
+                return fullMeal.strCategory === category ? fullMeal : null;
+            }
         } catch (error) {
-            console.error("Error: ", error);
+            console.error("Error fetching full details: ", error);
+            return null;
         }
     });
-    const results = await Promise.all(mealsLookup);
-    let filteredMeals = []
-    for (let meal of results) {
-        if (!meal) {
-            continue;
-        }
-        filteredMeals.push(meal);
-    }
-    return filteredMeals;
 
+    // We wait for all lookups to finish
+    const results = await Promise.all(mealsLookup);
+
+    // Clean null results
+    return results.filter(meal => meal !== null);
 }
 
 async function openRecipeDetails(id) {
@@ -464,6 +465,37 @@ addRecipeForm.addEventListener('submit', (e) => {
     
     // Scroll down to favorites to see the result
     favoritesContainer.scrollIntoView({ behavior: 'smooth' });
+});
+
+
+// Event Listener for sorting
+sortSelect.addEventListener('change', (e) => {
+    const sortType = e.target.value;
+    
+    if (STATE.searchResults.length === 0) return;
+
+    // Sorting logic
+    STATE.searchResults.sort((a, b) => {
+        switch (sortType) {
+            case 'az':
+                return a.strMeal.localeCompare(b.strMeal);
+            case 'za':
+                return b.strMeal.localeCompare(a.strMeal);
+            case 'few-ing': // Fewer ingredients first
+                return countIngredients(a) - countIngredients(b);
+            case 'many-ing': // More ingredients first
+                return countIngredients(b) - countIngredients(a);
+            case 'short-prep': // Shorter instructions first
+                return a.strInstructions.length - b.strInstructions.length;
+            default:
+                return 0;
+        }
+    });
+
+    // Render sorted results
+    resultsContainer.innerHTML = '';
+    STATE.shownCount = 0;
+    renderNextBatch(STATE.itemsPerLoad);
 });
 
 window.addEventListener('click', (e) => {
