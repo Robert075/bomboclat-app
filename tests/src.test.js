@@ -1,4 +1,10 @@
-const {getIngredientListWithMeasures, getNutritionInfoHTML, createCardHTML} = require("../src/utils");
+const {
+  getIngredientListWithMeasures, 
+  getNutritionInfoHTML, 
+  createCardHTML,
+  saveFavorite,
+  removeFavorite
+} = require("../src/utils");
 
 const recipe = {
       "idMeal": "52772",
@@ -88,3 +94,31 @@ test("Recipe cards are correctly created", () => {
   const result = createCardHTML(recipe, "result");
   expect(result).toBe(expected);
 });
+
+test("Recipes can be added to favourites", () => {
+  const favouriteList = [];
+  expect(saveFavorite(recipe, favouriteList)).toBe(true);
+  expect(favouriteList.length).toStrictEqual(1);
+});
+
+test("Recipes can be deleted from favourites", () => {
+  let favouriteList = [recipe];
+  favouriteList = removeFavorite(recipe.idMeal, favouriteList);
+  expect(favouriteList.length).toStrictEqual(0);
+});
+
+test("Recipes can be added and deleted in the same run", () => {
+  let favouriteList = [];
+  expect(favouriteList.length).toStrictEqual(0);
+  expect(saveFavorite(recipe, favouriteList)).toBe(true);
+  expect(favouriteList.length).toStrictEqual(1);
+  favouriteList = removeFavorite(recipe.idMeal, favouriteList);
+  expect(favouriteList.length).toStrictEqual(0);
+})
+
+test("The same recipe cannot be twice in the favourite list", () => {
+  let favouriteList = [];
+  expect(favouriteList.length).toStrictEqual(0);
+  expect(saveFavorite(recipe, favouriteList)).toBe(true);
+  expect(saveFavorite(recipe, favouriteList)).toBe(false);
+})
