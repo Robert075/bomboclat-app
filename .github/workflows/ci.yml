@@ -1,0 +1,25 @@
+name: CI - Ejecutar Tests
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x' 
+        
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Jest Tests
+      run: npm test
+      
