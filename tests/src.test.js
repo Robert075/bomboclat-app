@@ -3,7 +3,8 @@ const {
   getNutritionInfoHTML, 
   createCardHTML,
   saveFavorite,
-  removeFavorite
+  removeFavorite,
+  countIngredients
 } = require("../src/utils");
 
 const recipe = {
@@ -114,11 +115,15 @@ test("Recipes can be added and deleted in the same run", () => {
   expect(favouriteList.length).toStrictEqual(1);
   favouriteList = removeFavorite(recipe.idMeal, favouriteList);
   expect(favouriteList.length).toStrictEqual(0);
-})
+});
 
 test("The same recipe cannot be twice in the favourite list", () => {
   let favouriteList = [];
   expect(favouriteList.length).toStrictEqual(0);
   expect(saveFavorite(recipe, favouriteList)).toBe(true);
   expect(saveFavorite(recipe, favouriteList)).toBe(false);
+});
+
+test("Ingredients from a recipe are correctly counted", () => {
+  expect(countIngredients(recipe)).toStrictEqual(9);
 })
